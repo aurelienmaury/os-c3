@@ -1,0 +1,111 @@
+heat_template_version: 2013-05-23
+
+
+description: OpenStack Command & Control Center
+
+
+parameters:
+  keypair_name:
+    default: amaury-ext-compute
+    description: Keypair to inject in instances
+    type: string
+
+    
+resources:
+  dmz_net:
+    type: OS::Neutron::Net
+        
+  dmz_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: dmz_net }
+      ip_version: 4
+      cidr: 10.0.0.0/24
+      allocation_pools:
+        - { start: 10.0.0.100, end: 10.0.0.199 }
+
+  prv_net:
+    type: OS::Neutron::Net
+        
+  prv_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: prv_net }
+      ip_version: 4
+      cidr: 10.0.1.0/24
+      allocation_pools:
+        - { start: 10.0.1.100, end: 10.0.1.199 }
+
+  c3_sg:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      rules:
+        - { direction: ingress, protocol: TCP, port_range_min: 22, port_range_max: 22 }
+        - { direction: ingress, protocol: TCP, port_range_min: 80, port_range_max: 80, remote_ip_prefix: 10.0.0.0/24 }
+        - { direction: ingress, protocol: TCP, port_range_min: 80, port_range_max: 80, remote_ip_prefix: 10.0.1.0/24 }
+        - { direction: ingress, protocol: TCP, port_range_min: 443, port_range_max: 443, remote_ip_prefix: 10.0.0.0/24 }
+        - { direction: ingress, protocol: TCP, port_range_min: 443, port_range_max: 443, remote_ip_prefix: 10.0.1.0/24 }
+        - { direction: ingress, protocol: TCP, port_range_min: 123, port_range_max: 123, remote_ip_prefix: 10.0.0.0/24 }
+        - { direction: ingress, protocol: TCP, port_range_min: 123, port_range_max: 123, remote_ip_prefix: 10.0.1.0/24 }
+        - { direction: ingress, protocol: TCP, port_range_min: 53, port_range_max: 53, remote_ip_prefix: 10.0.0.0/24 }
+        - { direction: ingress, protocol: TCP, port_range_min: 53, port_range_max: 53, remote_ip_prefix: 10.0.1.0/24 }        
+        - { direction: egress, protocol: ICMP }
+        - { direction: egress, protocol: TCP }
+        - { direction: egress, protocol: UDP }
+
+  c3_realm_sg:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      rules:
+        - { direction: ingress, protocol: TCP, port_range_min: 22, port_range_max: 22, remote_group_id: { get_resource: c3_sg } }
+    
+  c3_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: 6ea98324-0f14-49f6-97c0-885d1b8dc517
+
+  c3_dmz_port:
+    type: OS::Neutron::Port
+    properties:
+      fixed_ips:
+        - { ip_address: 10.0.0.1, subnet_id: { get_resource: dmz_subnet } }
+      network_id: { get_resource: dmz_net }
+      security_groups: [ { get_resource: c3_sg } ]
+
+  c3_prv_port:
+    type: OS::Neutron::Port
+    properties:
+      fixed_ips:
+        - { ip_address: 10.0.1.1, subnet_id: { get_resource: prv_subnet } }
+      network_id: { get_resource: prv_net }
+      security_groups: [ { get_resource: c3_sg } ]
+
+  c3_server:
+    type: OS::Nova::Server
+    properties:
+      key_name: { get_param: keypair_name }
+      image: c91c8128-a1b5-4382-8a5e-ea73c02e58ed
+      flavor: n1.cw.standard-8
+      networks:
+        - port: { get_resource: c3_dmz_port }
+        - port: { get_resource: c3_prv_port }
+      user_data_format: RAW
+      user_data: |
+            #!/bin/bash
+            cp /etc/network/interfaces.d/eth0.cfg /etc/network/interfaces.d/eth1.cfg
+            sed -i -e s/eth0/eth1/g /etc/network/interfaces.d/eth1.cfg
+            ifup eth1
+            apt-get update && apt-get upgrade -y
+            apt-get install ansible git -y
+            mkdir /etc/ansible
+            echo "[local]" > /etc/ansible/hosts
+            echo "127.0.0.1 ansible_connection=local" >> /etc/ansible/hosts
+            cd /root && git clone https://github.com/aurelienmaury/os-c3.git
+            ansible-playbook /root/os-c3/ansible/setup.yml        
+
+
+  c3_internet_surface:
+    type: OS::Nova::FloatingIPAssociation
+    properties:
+      floating_ip: { get_resource: c3_ip }
+      server_id: { get_resource: c3_server }
