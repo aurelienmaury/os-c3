@@ -92,7 +92,7 @@ resources:
       user_data_format: RAW
       user_data: |
             #!/bin/bash
-            sleep 30
+            sleep 60
             cp /etc/network/interfaces.d/eth0.cfg /etc/network/interfaces.d/eth1.cfg
             sed -i -e s/eth0/eth1/g /etc/network/interfaces.d/eth1.cfg
             ifup eth1
@@ -103,7 +103,7 @@ resources:
             echo "[local]" > /etc/ansible/hosts
             echo "127.0.0.1 ansible_connection=local" >> /etc/ansible/hosts
             cd /root && git clone https://github.com/aurelienmaury/os-c3.git
-            /usr/local/bin/ansible-playbook /root/os-c3/ansible/setup.yml
+            /usr/local/bin/ansible-playbook /root/os-c3/ansible/setup.yml -vvv > /root/ansible-log 2>&1
 
   c3_internet_surface:
     type: OS::Nova::FloatingIPAssociation
