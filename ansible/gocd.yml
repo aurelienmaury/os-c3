@@ -7,6 +7,11 @@
       apt_repository:
         repo="deb http://dl.bintray.com/gocd/gocd-deb /"
         state=present
+
+    - name: gocd repository key is present
+      apt_key:
+        url="https://bintray.com/user/downloadSubjectPublicKey?username=gocd"
+        state=present
         
     - name: apt cache is up-to-date
       apt:
