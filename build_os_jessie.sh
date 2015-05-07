@@ -16,6 +16,8 @@ sudo guestmount -a $IMG -i $TMP_DIR
 sudo sed -i "s#name: debian#name: cloud#" $TMP_DIR/etc/cloud/cloud.cfg
 sudo sed -i "s#gecos: Debian#gecos: Cloud user#" $TMP_DIR/etc/cloud/cloud.cfg
 sudo sed -i "s#debian#cloud#" $TMP_DIR/etc/sudoers.d/debian-cloud-init
+sudo sed -i "#ed25519#d" $TMP_DIR/etc/ssh/sshd_config
+# install haveged package
 sudo sed -i "/gecos/a \ \ \ \ \ shell: \/bin\/bash" $TMP_DIR/etc/cloud/cloud.cfg
 sudo guestunmount $TMP_DIR
 
