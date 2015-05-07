@@ -95,9 +95,9 @@ resources:
             cp /etc/network/interfaces.d/eth0.cfg /etc/network/interfaces.d/eth1.cfg
             sed -i -e s/eth0/eth1/g /etc/network/interfaces.d/eth1.cfg
             ifup eth1
-            apt-add-repository ppa:ansible/ansible -y
-            apt-get update
-            apt-get install ansible git -y
+            apt-get update && apt-get upgrade -y
+            apt-get install python-dev python-pip -y
+            pip install ansible
             mkdir /etc/ansible
             echo "[local]" > /etc/ansible/hosts
             echo "127.0.0.1 ansible_connection=local" >> /etc/ansible/hosts
