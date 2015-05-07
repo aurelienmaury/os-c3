@@ -5,7 +5,7 @@
   tasks:
     - name: gocd repository is present
       apt_repository:
-        repo="deb http://dl.bintray.com/gocd/gocd-deb jessie main"
+        repo="deb http://dl.bintray.com/gocd/gocd-deb /"
         state=present
         
     - name: apt cache is up-to-date
