@@ -84,8 +84,8 @@ resources:
     type: OS::Nova::Server
     properties:
       key_name: { get_param: keypair_name }
-      image: c91c8128-a1b5-4382-8a5e-ea73c02e58ed
-      flavor: n1.cw.standard-8
+      image: 2dffb40d-9764-4ebf-9b47-3fde481ffca1
+      flavor: n1.cw.standard-2
       networks:
         - port: { get_resource: c3_dmz_port }
         - port: { get_resource: c3_prv_port }
@@ -95,14 +95,14 @@ resources:
             cp /etc/network/interfaces.d/eth0.cfg /etc/network/interfaces.d/eth1.cfg
             sed -i -e s/eth0/eth1/g /etc/network/interfaces.d/eth1.cfg
             ifup eth1
-            apt-get update && apt-get upgrade -y
+            apt-add-repository ppa:ansible/ansible -y
+            apt-get update
             apt-get install ansible git -y
             mkdir /etc/ansible
             echo "[local]" > /etc/ansible/hosts
             echo "127.0.0.1 ansible_connection=local" >> /etc/ansible/hosts
             cd /root && git clone https://github.com/aurelienmaury/os-c3.git
-            ansible-playbook /root/os-c3/ansible/setup.yml        
-
+            ansible-playbook /root/os-c3/ansible/setup.yml
 
   c3_internet_surface:
     type: OS::Nova::FloatingIPAssociation
