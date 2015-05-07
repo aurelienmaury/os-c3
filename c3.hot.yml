@@ -96,7 +96,7 @@ resources:
             sed -i -e s/eth0/eth1/g /etc/network/interfaces.d/eth1.cfg
             ifup eth1
             apt-get update && apt-get upgrade -y
-            apt-get install git python-dev python-pip -y
+            apt-get install aptitude git python-dev python-pip -y
             pip install ansible
             mkdir /etc/ansible
             echo "[local]" > /etc/ansible/hosts
