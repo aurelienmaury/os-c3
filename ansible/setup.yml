@@ -18,3 +18,12 @@
         state=present
       with_items:
         - libguestfs-tools
+
+    - name: pip packages installed
+      apt:
+        name="{{ item }}"
+      with_items:
+        - python-glanceclient
+        - python-novaclient
+        - python-neutronclient
+        - python-heatclient
