@@ -102,7 +102,7 @@ resources:
             echo "[local]" > /etc/ansible/hosts
             echo "127.0.0.1 ansible_connection=local" >> /etc/ansible/hosts
             cd /root && git clone https://github.com/aurelienmaury/os-c3.git
-            ansible-playbook /root/os-c3/ansible/setup.yml
+            /usr/local/bin/ansible-playbook /root/os-c3/ansible/setup.yml
 
   c3_internet_surface:
     type: OS::Nova::FloatingIPAssociation
