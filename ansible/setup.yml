@@ -43,10 +43,10 @@
 
     - name: packer dest directory ready
       file:
-        path=/usr/local/packer
+        path=/usr/local/bin
         state=directory
         owner=root
-        group=root
+        group=staff
         mode=0755
 
     - name: packer download
@@ -76,9 +76,9 @@
         
     - name: unzip packer
       unarchive:
-        dest=/usr/local/packer
+        dest=/usr/local/bin
         src=/tmp/packer.zip
         copy=no
         owner=root
-        group=root
+        group=staff
         mode=0755
