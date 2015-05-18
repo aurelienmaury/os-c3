@@ -3,21 +3,28 @@
   sudo: yes
 
   tasks:
-    - name: apt cache is up-to-date
-      apt:
-        update_cache=yes
-        cache_valid_time=3600
+    - name: Jenkins key server is known
+      apt_key:
+        url=http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key
+        state=present
 
+    - name: Jenkins apt server is known
+      apt_repository:
+        repo="deb http://pkg.jenkins-ci.org/debian binary/"
+        state=present
+        
     - name: system is up-to-date
       apt:
         upgrade=full
-        
+        update_cache=yes
+
     - name: packages installed
       apt:
         pkg="{{ item }}"
         state=present
       with_items:
         - libguestfs-tools
+        - jenkins
 
     - name: pip packages installed
       apt:
@@ -27,3 +34,6 @@
         - python-novaclient
         - python-neutronclient
         - python-heatclient
+        - python-openstackclient
+        - python-cinderclient
+        
