@@ -44,5 +44,5 @@
     - name: jenkins is up
       service:
         name=jenkins
-        state=running
+        state=started
         enabled=yes
