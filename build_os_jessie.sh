@@ -26,3 +26,7 @@ glance image-create \
        --disk-format qcow2 \
        --container-format bare \
        --name 'Debian Jessie'
+
+#glance image-update --property cw_os=Ubuntu --property cw_origin=
+#Cloudwatt --property hw_rng_model=virtio --min-disk 10 --is-public
+#True --purge-props d2df7857-c81f-4789-ae75-5f86f0f55fa2
