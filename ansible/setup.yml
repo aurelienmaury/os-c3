@@ -12,11 +12,15 @@
       apt_repository:
         repo="deb http://pkg.jenkins-ci.org/debian binary/"
         state=present
-        
+
+    - name: apt cache is up-to-date
+      apt:
+        update_cache=yes
+        cache_valid_time=0
+
     - name: system is up-to-date
       apt:
         upgrade=full
-        update_cache=yes
 
     - name: packages installed
       apt:
@@ -37,3 +41,8 @@
         - python-openstackclient
         - python-cinderclient
         
+    - name: jenkins is up
+      service:
+        name=jenkins
+        state=running
+        enabled=yes
